@@ -1,29 +1,117 @@
 const canvas = document.getElementById("jsCanvas");
+const ctx = canvas.getContext("2d");
+const color = document.getElementsByClassName("jsColor");
+const range = document.getElementById("jsRange");
+const mode = document.getElementById("jsMode");
+const saveBtn = document.getElementById("jsSave");
 
-let panting = false;
+const INITIAL_COLOR = "#2c2c2c";
+
+canvas.width = 700;
+canvas.height = 700;
+
+ctx.fillStyle = "white";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+ctx.strokeStyle = INITIAL_COLOR;
+ctx.fillStyle = INITIAL_COLOR;
+ctx.lineWidth = 2.5;
+
+let painting = false;
+let filling = false;
 
 function stopPainting() {
-    panting = false;
+    painting = false;
+}
+
+function startPainting(event) {
+    painting = true;
+
+    const x = event.offsetX;
+    const y = event.offsetY;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
 }
 
 function onMouseMove(event) {
     const x = event.offsetX;
     const y = event.offsetY;
     
+    // if (!painting) {
+    //     console.log("moveTo");
+    //     ctx.beginPath();
+    //     ctx.moveTo(x, y);
+    // } else {
+
+    if (painting) {
+        ctx.lineTo(x, y);
+        ctx.stroke();
+    }
 }
 
 function onMouseDown(event) {
-    panting = true;
+    painting = true;
 }
 
-function onMouseUp(event) {
-    stopPainting();
+function handleColorClick (event) {
+    ctx.strokeStyle = event.target.style.backgroundColor;
+    ctx.fillStyle = event.target.style.backgroundColor;
+}
+
+function handleRangeChange (event) {
+    console.log(event);
+    ctx.lineWidth = event.target.value;
+}
+
+function handleCanvasClick (event) {
+    if (filling) {
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+}
+
+function handleModeClick (event) {
+    if (filling) {
+        filling = false;
+        mode.innerText = "Fill";
+    } else {
+        filling = true;
+        mode.innerText = "Paint";
+        ctx.fillStyle = ctx.strokeStyle;
+    }
+}
+
+function handleCM(event) {
+    event.preventDefault();
+}
+
+function handleSaveClick() {
+    const image = canvas.toDataURL("image/jpeg");
+    const link = document.createElement("a");
+    link.href = image;
+    link.download = "PaintJS[Export]";
+    link.click();
 }
 
 if (canvas) {
     canvas.addEventListener("mousemove", onMouseMove);
-    canvas.addEventListener("mousedown", onMouseDown);
-    canvas.addEventListener("mouseup", onMouseUp);
+    canvas.addEventListener("mousedown", startPainting);
+    canvas.addEventListener("mouseup", stopPainting);
     canvas.addEventListener("mouseleave", stopPainting);
+    canvas.addEventListener("click", handleCanvasClick);
+    canvas.addEventListener("contextmenu", handleCM);
 }
 
+Array.from(color).forEach(array => array.addEventListener("click", handleColorClick));
+
+if (range) {
+    range.addEventListener("input", handleRangeChange);
+}
+
+if (mode) {
+    mode.addEventListener("click", handleModeClick);
+}
+
+if (saveBtn) {
+    saveBtn.addEventListener("click", handleSaveClick);
+}

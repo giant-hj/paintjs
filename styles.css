@@ -45,11 +45,15 @@ body {
 }
 
 .controls__btns button:active {
-  transform: scale(0.98);
+  transform: scale(0.90);
 }
 
 .controls .controls__colors {
   display: flex;
+}
+
+.controls .controls__colors > div:active {
+  transform: scale(0.90);
 }
 
 .controls__colors .controls__color {
